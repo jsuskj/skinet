@@ -4,6 +4,7 @@ import { IPagination } from '../shared/models/pagination';
 import { IBrand } from '../shared/models/brand';
 import { IType } from '../shared/models/productType';
 import { map } from 'rxjs/operators';
+import { ShopParams } from '../shared/models/shopParams';
 
 @Injectable({
   providedIn: 'root'
@@ -14,27 +15,33 @@ export class ShopService {
   constructor(private http: HttpClient) { }
 
   // tslint:disable-next-line: typedef
-  getProducts(brandId?: number, typeId?: number) {
+  getProducts(shopParams: ShopParams) {
     let params = new HttpParams();
 
-    if (brandId) {
-      params.append('brandId', brandId.toString());
-      
-      console.log(brandId.toString());
+    if (shopParams.brandId !== 0) {
+      params = params.append('brandId', shopParams.brandId.toString());
     }
 
-    if (typeId) {
-      params.append('typeId', typeId.toString());
-    }
+    if (shopParams.typeId !== 0) {
+      params = params.append('typeId', shopParams.typeId.toString());    }
 
-
-    return this.http.get<IPagination>(this.baseUrl + 'products', {observe: 'response', params})
-            .pipe(
-               map(response =>  {
-                return response.body;  // IPagination object
-              })
-            );
+    if (shopParams.search) {
+      params = params.append('search', shopParams.search);
     }
+   
+    params = params.append('sort', shopParams.sort);
+    params = params.append('pageIndex', shopParams.pageNumber.toString());
+    params = params.append('pageSize', shopParams.pageSize.toString());
+    
+
+    return this.http.get<IPagination>(this.baseUrl + 'products', { observe: 'response', params })
+        .pipe(
+          map(response =>  {
+            return response.body;  // IPagination object
+          })
+        );
+
+  }
 
   // tslint:disable-next-line: typedef
   getBrands() {
