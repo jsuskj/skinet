@@ -30,6 +30,7 @@ namespace API
             services.AddAutoMapper(typeof(MappingProfiles));
             services.AddControllers();
 
+            // add dbContext as a service
             services.AddDbContext<StoreContext>(x => x.UseSqlite(_config.GetConnectionString("DefaultConnection")));
 
             services.AddDbContext<AppIdentityDbContext>(x => 
